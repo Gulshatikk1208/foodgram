@@ -91,6 +91,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "/home/${{ secrets.SSH_USER }}/foodgram/docker-compose.yml"
           target: "./infra"
+          direction: download
 
       - name: Deploy on server
         uses: appleboy/ssh-action@master
