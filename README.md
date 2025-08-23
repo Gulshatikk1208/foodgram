@@ -104,4 +104,4 @@ docker compose up -d
 
 ### После успешного деплоя проект будет доступен по адресу: https://foodgram-app.duckdns.org/recipes
 
-Автор проекта: Гульшат Гайфуллина (https://github.com/Gulshatikk1208)
+Автор проекта: Студент Яндекс.Практикум курса "Python-разработчик" Гульшат Гайфуллина (https://github.com/Gulshatikk1208)
