@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from backend.foodgram_backend import constants
+from foodgram_backend import constants
 
 User = get_user_model()
 

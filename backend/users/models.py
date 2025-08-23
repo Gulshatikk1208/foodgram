@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from backend.foodgram_backend import constants
+from foodgram_backend import constants
 
 
 class User(AbstractUser):

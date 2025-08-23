@@ -6,10 +6,10 @@ from djoser.serializers import UserCreateSerializer as UserCreate
 from djoser.serializers import UserSerializer as UserDetail
 from rest_framework import serializers
 
-from backend.foodgram_backend import constants
-from backend.recipes.models import (Cart, Favorite, Ingredient, Recipe,
-                                    RecipeIngredient, Tag)
-from backend.users.models import Follow
+from foodgram_backend import constants
+from recipes.models import (Cart, Favorite, Ingredient, Recipe,
+                            RecipeIngredient, Tag)
+from users.models import Follow
 
 User = get_user_model()
 

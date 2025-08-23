@@ -9,11 +9,11 @@ from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-from backend.api import filters, permissions, serializers
-from backend.api.pagination import CustomPagePagination
-from backend.recipes.models import (Cart, Favorite, Ingredient, Recipe,
-                                    RecipeIngredient, Tag)
-from backend.users.models import Follow
+from . import filters, permissions, serializers
+from .pagination import CustomPagePagination
+from recipes.models import (Cart, Favorite, Ingredient, Recipe,
+                            RecipeIngredient, Tag)
+from users.models import Follow
 
 User = get_user_model()
 
