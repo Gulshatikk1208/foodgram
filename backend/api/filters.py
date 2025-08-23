@@ -1,19 +1,19 @@
-import django_filters
-from django_filters import filters
-from recipes.models import Ingredient, Recipe, Tag
+import django_filters.rest_framework as filters
+
+from backend.recipes.models import Ingredient, Recipe, Tag
 
 
-class IngredientFilter(django_filters.FilterSet):
+class IngredientFilter(filters.FilterSet):
     """Фильтр для ингредиентов."""
 
-    name = django_filters.CharFilter(lookup_expr='istartswith')
+    name = filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:
         model = Ingredient
         fields = ('name',)
 
 
-class RecipeFilter(django_filters.FilterSet):
+class RecipeFilter(filters.FilterSet):
     """Фильтр для рецептов."""
 
     tags = filters.ModelMultipleChoiceFilter(
