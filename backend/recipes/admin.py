@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import Cart, Favorite, Ingredient, Recipe, Tag
+from .models import Cart, Favorite, Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class IngredientInline(admin.StackedInline):
-    model = Ingredient
+    model = RecipeIngredient
     extra = 0
 
 
