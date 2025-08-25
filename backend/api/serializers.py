@@ -305,13 +305,13 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
-        validators = (
-            serializers.UniqueTogetherValidator(
-                queryset=Favorite.objects.all(),
-                fields=('user', 'recipe'),
-                message='Рецепт уже добавлен в избранное'
-            )
-        )
+        # validators = (
+        #     serializers.UniqueTogetherValidator(
+        #         queryset=Favorite.objects.all(),
+        #         fields=('user', 'recipe'),
+        #         message='Рецепт уже добавлен в избранное'
+        #     )
+        # )
 
     def to_representation(self, instance):
         """Возвращает упрощенные данные рецепта."""

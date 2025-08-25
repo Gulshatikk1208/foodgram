@@ -191,9 +191,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Удаление из избранного."""
         recipe = self.get_object()
         favorite = get_object_or_404(
-            Favorite,
-            user=request.user,
-            recipe=recipe
+            Favorite.objects.filter(user=request.user, recipe=recipe)
         )
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -215,9 +213,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Удаление из списка покупок."""
         recipe = self.get_object()
         cart_item = get_object_or_404(
-            Cart,
-            user=request.user,
-            recipe=recipe
+            Cart.objects.filter(user=request.user, recipe=recipe)
         )
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
