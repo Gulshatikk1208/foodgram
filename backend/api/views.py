@@ -61,7 +61,8 @@ class MyUserViewSet(PartialUpdateModelMixin,
     @action(methods=['get'], detail=False)
     def me(self, request, *args, **kwargs):
         """Возвращает данные текущего пользователя."""
-        return super().retrieve(request, *args, **kwargs)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
     @action(methods=['post'], detail=False, url_path='set_password')
     def set_password(self, request):
