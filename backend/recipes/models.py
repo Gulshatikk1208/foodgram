@@ -81,7 +81,8 @@ class Recipe(models.Model):
     )
     short_link = models.URLField(
         verbose_name='Короткая ссылка рецепта',
-        editable=False
+        editable=False,
+        null=True
     )
 
     class Meta:
