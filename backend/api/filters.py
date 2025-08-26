@@ -32,10 +32,10 @@ class RecipeFilter(filters.FilterSet):
         """Фильтрует по избранному."""
         if value != '1' or self.request.user.is_anonymous:
             return queryset
-        return queryset.filter(favorited__user_id=self.request.user.id)
+        return queryset.filter(favorite_related__user_id=self.request.user.id)
 
     def filter_by_cart(self, queryset, name, value):
         """Фильтрует по списку покупок."""
         if value != '1' or self.request.user.is_anonymous:
             return queryset
-        return queryset.filter(cart__user_id=self.request.user.id)
+        return queryset.filter(cart_related__user_id=self.request.user.id)

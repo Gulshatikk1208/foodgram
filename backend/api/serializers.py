@@ -195,6 +195,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    short_link = serializers.ReadOnlyField()
 
     class Meta:
         model = Recipe
@@ -208,7 +209,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'text',
-            'cooking_time'
+            'cooking_time',
+            'short_link'
         )
 
     def get_is_favorited(self, obj):
@@ -216,7 +218,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return (
             request and request.user.is_authenticated
-            and obj.favorited.filter(user=request.user).exists()
+            and obj.favorite_related.filter(user=request.user).exists()
         )
 
     def get_is_in_shopping_cart(self, obj):
@@ -224,7 +226,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return (
             request and request.user.is_authenticated
-            and obj.in_cart.filter(user=request.user).exists()
+            and obj.cart_related.filter(user=request.user).exists()
         )
 
 

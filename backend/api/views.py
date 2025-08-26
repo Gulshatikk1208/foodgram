@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
@@ -82,7 +82,7 @@ class MyUserViewSet(PartialUpdateModelMixin,
     @action(methods=['put'], detail=False, url_path='me/avatar')
     def set_avatar(self, request):
         """Устанавливает аватар."""
-        serializer = serializers.UserSerializer(
+        serializer = serializers.AvatarSerializer(
             request.user,
             data={'avatar': request.data.get('avatar')},
             partial=True,
@@ -159,8 +159,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = serializers.RecipeSerializer
     pagination_class = CustomPagePagination
-    permission_classes = [IsAuthenticatedOrReadOnly,
-                          permissions.IsAuthorOrReadOnlyPermission]
+    permission_classes = [permissions.IsAuthorOrReadOnlyPermission]
     filter_backends = [DjangoFilterBackend]
     filterset_class = filters.RecipeFilter
 
@@ -173,6 +172,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return (
             serializers.RecipeSerializer if self.request.method in SAFE_METHODS
             else serializers.CreateRecipeSerializer)
+
+    def get_permissions(self):
+        if self.action and self.action not in self.action_map:
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     @action(methods=['post'], detail=True)
     def favorite(self, request, *args, **kwargs):
@@ -226,7 +230,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Загрузка списка покупок."""
         ingredients = RecipeIngredient.objects.filter(
-            recipe__cart__user=request.user
+            recipe__cart_related__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit',
@@ -259,5 +263,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk=None):
         """Возвращает короткую ссылку на рецепт."""
         recipe = self.get_object()
-        short_link = request.build_absolute_uri(f"/s/{recipe.id}/")
-        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
+        return Response(
+            {'short-link': recipe.short_link},
+            status=status.HTTP_200_OK
+        )

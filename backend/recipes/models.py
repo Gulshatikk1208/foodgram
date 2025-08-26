@@ -79,11 +79,21 @@ class Recipe(models.Model):
         upload_to='recipes/images',
         verbose_name='Изображение'
     )
+    short_link = models.URLField(
+        verbose_name='Короткая ссылка рецепта',
+        editable=False
+    )
 
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ['-pub_date']
+
+    def save(self, *args, **kwargs):
+        """Генерирует короткую ссылку при создании."""
+        if not self.pk:
+            self.short_link = f"https://foodgram-app.duckdns.org/s/{self.id}/"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -132,12 +142,14 @@ class FavoriteCartBase(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
+        related_name="%(class)s_related"
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        related_name="%(class)s_related"
     )
 
     class Meta:
@@ -155,18 +167,6 @@ class FavoriteCartBase(models.Model):
 
 class Favorite(FavoriteCartBase):
     """Модель избранного."""
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='favorites',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='favorited',
-        verbose_name='Рецепт'
-    )
 
     class Meta:
         verbose_name = 'избранное'
@@ -175,18 +175,6 @@ class Favorite(FavoriteCartBase):
 
 class Cart(FavoriteCartBase):
     """Модель списка покупок."""
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='cart',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='in_cart',
-        verbose_name='Рецепт'
-    )
 
     class Meta:
         verbose_name = 'список покупок'
