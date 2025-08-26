@@ -112,7 +112,7 @@ class MyUserViewSet(PartialUpdateModelMixin,
     @action(methods=['post'], detail=True)
     def subscribe(self, request, *args, **kwargs):
         """Управляет подпиской на пользователя."""
-        followed_user = get_object_or_404(User, pk=self.kwargs.get('id'))
+        followed_user = get_object_or_404(User, id=self.kwargs.get('pk'))
         serializer = serializers.FollowSerializer(
             data={
                 'user': request.user.id,
@@ -127,7 +127,7 @@ class MyUserViewSet(PartialUpdateModelMixin,
     @subscribe.mapping.delete
     def unsubscribe(self, request, *args, **kwargs):
         """Отписка от пользователя."""
-        followed_user = get_object_or_404(User, pk=self.kwargs.get('id'))
+        followed_user = get_object_or_404(User, id=self.kwargs.get('pk'))
         subscription = get_object_or_404(
             Follow,
             user=request.user,
@@ -191,7 +191,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Удаление из избранного."""
         recipe = self.get_object()
         favorite = get_object_or_404(
-            Favorite.objects.filter(user=request.user, recipe=recipe)
+            Favorite,
+            user=request.user,
+            recipe=recipe
         )
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -213,7 +215,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Удаление из списка покупок."""
         recipe = self.get_object()
         cart_item = get_object_or_404(
-            Cart.objects.filter(user=request.user, recipe=recipe)
+            Cart,
+            user=request.user,
+            recipe=recipe
         )
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
