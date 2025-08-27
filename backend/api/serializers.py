@@ -272,12 +272,14 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        """Создает рецепт с тегами и ингредиентами."""
+        """Создает рецепт."""
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = super().create(validated_data)
         self.add_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
+        recipe.short_link = f"https://foodgram-app.duckdns.org/s/{recipe.id}/"
+        recipe.save(update_fields=['short_link'])
         return recipe
 
     def update(self, instance, validated_data):
@@ -307,13 +309,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
-        # validators = (
-        #     serializers.UniqueTogetherValidator(
-        #         queryset=Favorite.objects.all(),
-        #         fields=('user', 'recipe'),
-        #         message='Рецепт уже добавлен в избранное'
-        #     )
-        # )
 
     def validate(self, attrs):
         if Favorite.objects.filter(**attrs).exists():
@@ -336,13 +331,6 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ('user', 'recipe')
-        # validators = (
-        #     serializers.UniqueTogetherValidator(
-        #         queryset=Cart.objects.all(),
-        #         fields=('user', 'recipe'),
-        #         message='Рецепт уже добавлен в корзину'
-        #     )
-        # )
 
     def validate(self, attrs):
         if Cart.objects.filter(**attrs).exists():
