@@ -91,12 +91,6 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
         ordering = ['-pub_date']
 
-    def save(self, *args, **kwargs):
-        """Генерирует короткую ссылку при создании."""
-        if not self.pk:
-            self.short_link = f"https://foodgram-app.duckdns.org/s/{self.id}/"
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
 
