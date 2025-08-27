@@ -160,7 +160,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = serializers.RecipeSerializer
     pagination_class = CustomPagePagination
-    permission_classes = [permissions.IsAuthorOrReadOnlyPermission]
+    permission_classes = [IsAuthenticatedOrReadOnly,
+                          permissions.IsAuthorOrReadOnlyPermission]
     filter_backends = [DjangoFilterBackend]
     filterset_class = filters.RecipeFilter
 
@@ -174,10 +175,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializers.RecipeSerializer if self.request.method in SAFE_METHODS
             else serializers.CreateRecipeSerializer)
 
-    def get_permissions(self):
-        if self.action and self.action not in self.action_map:
-            return [IsAuthenticated()]
-        return super().get_permissions()
+    # def get_permissions(self):
+    #     if self.action and self.action not in self.action_map:
+    #         return [IsAuthenticated()]
+    #     return super().get_permissions()
 
     @action(methods=['post'], detail=True)
     def favorite(self, request, *args, **kwargs):
