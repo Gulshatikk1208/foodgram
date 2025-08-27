@@ -174,6 +174,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializers.RecipeSerializer if self.request.method in SAFE_METHODS
             else serializers.CreateRecipeSerializer)
 
+    def get_permissions(self):
+        if self.action in self.action_map:
+            return [IsAuthenticatedOrReadOnly]
+        return super().get_permissions()
+
     @action(methods=['post'], detail=True)
     def favorite(self, request, *args, **kwargs):
         """Добавление в избранное."""
