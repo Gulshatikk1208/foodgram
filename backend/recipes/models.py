@@ -11,9 +11,10 @@ class Tag(models.Model):
     """Модель тега."""
     name = models.CharField(
         verbose_name='Название тега',
-        unique=True
+        unique=True,
+        max_length=constants.TAG_LENGTH
     )
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=constants.TAG_LENGTH)
 
     class Meta:
         verbose_name = 'тег'
