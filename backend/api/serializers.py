@@ -307,13 +307,20 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
-        validators = (
-            serializers.UniqueTogetherValidator(
-                queryset=Favorite.objects.all(),
-                fields=('user', 'recipe'),
-                message='Рецепт уже добавлен в избранное'
+        # validators = (
+        #     serializers.UniqueTogetherValidator(
+        #         queryset=Favorite.objects.all(),
+        #         fields=('user', 'recipe'),
+        #         message='Рецепт уже добавлен в избранное'
+        #     )
+        # )
+
+    def validate(self, attrs):
+        if Favorite.objects.filter(**attrs).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже добавлен в избранное.'
             )
-        )
+        return attrs
 
     def to_representation(self, instance):
         """Возвращает упрощенные данные рецепта."""
@@ -329,13 +336,20 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ('user', 'recipe')
-        validators = (
-            serializers.UniqueTogetherValidator(
-                queryset=Cart.objects.all(),
-                fields=('user', 'recipe'),
-                message='Рецепт уже добавлен в корзину'
+        # validators = (
+        #     serializers.UniqueTogetherValidator(
+        #         queryset=Cart.objects.all(),
+        #         fields=('user', 'recipe'),
+        #         message='Рецепт уже добавлен в корзину'
+        #     )
+        # )
+
+    def validate(self, attrs):
+        if Cart.objects.filter(**attrs).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже добавлен в список покупок.'
             )
-        )
+        return attrs
 
     def to_representation(self, instance):
         """Возвращает упрощенные данные рецепта."""
