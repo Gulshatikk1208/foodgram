@@ -288,12 +288,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
-    print(f"DEBUG: Redirect called for recipe {pk}")
-    print(f"DEBUG: FRONTEND_URL = {settings.FRONTEND_URL}")
-    return HttpResponseRedirect(
-        'https://google.com',
-        status=302
-    )
+    return HttpResponse(f"Redirect would happen for {pk}")
     # return HttpResponseRedirect(
     #     f'{settings.FRONTEND_URL}/recipes/{pk}/',
     #     permanent=True
