@@ -287,5 +287,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 def redirect_short_link(request, pk):
     """Редирект на полную ссылку рецепта."""
-    recipe_url = reverse('recipes-detail', kwargs={'pk': pk})
+    recipe_url = reverse('recipes-detail', kwargs={'id': pk})
     return redirect(request.build_absolute_uri(recipe_url), permanent=True)
