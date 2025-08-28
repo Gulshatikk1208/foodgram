@@ -280,7 +280,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Возвращает короткую ссылку на рецепт."""
         recipe = self.get_object()
         return Response(
-            {'short-link': recipe.short_link},
+            {'short-link': request.build_absolute_uri(f'/s/{recipe.id}/')},
             status=status.HTTP_200_OK
         )
 
