@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
@@ -276,7 +276,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return content
 
     @action(methods=['get'], detail=True, url_path='get-link')
-    def get_link(self, request, pk=None):
+    def get_link(self, request):
         """Возвращает короткую ссылку на рецепт."""
         recipe = self.get_object()
         return Response(
@@ -285,6 +285,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
 
-def redirect_short_link(request, pk):
+def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
-    return redirect(f'/recipes/{pk}', permanent=True)
+    return HttpResponseRedirect(f'/recipes/{pk}', permanent=True)
