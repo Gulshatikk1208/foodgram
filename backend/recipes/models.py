@@ -80,11 +80,6 @@ class Recipe(models.Model):
         upload_to='recipes/images',
         verbose_name='Изображение'
     )
-    short_link = models.URLField(
-        verbose_name='Короткая ссылка рецепта',
-        editable=False,
-        null=True
-    )
 
     class Meta:
         verbose_name = 'рецепт'
