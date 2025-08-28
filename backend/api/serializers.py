@@ -38,9 +38,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(UserCreate):
     """Сериализатор создания пользователя."""
 
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
+    class Meta(UserCreate.Meta):
         model = User
         fields = (
             'email',
@@ -195,7 +193,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    short_link = serializers.ReadOnlyField()
 
     class Meta:
         model = Recipe
@@ -209,8 +206,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'text',
-            'cooking_time',
-            'short_link'
+            'cooking_time'
         )
 
     def get_is_favorited(self, obj):
@@ -278,8 +274,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         recipe = super().create(validated_data)
         self.add_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
-        recipe.short_link = f"https://foodgram-app.duckdns.org/s/{recipe.id}/"
-        recipe.save(update_fields=['short_link'])
         return recipe
 
     def update(self, instance, validated_data):
