@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseRedirect
@@ -288,6 +289,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
     return HttpResponseRedirect(
-        f'https://foodgram-app.duckdns.org/recipes/{pk}/',
+        f'{settings.FRONTEND_URL}/recipes/{pk}/',
         permanent=True
     )
