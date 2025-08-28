@@ -289,6 +289,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
     return HttpResponseRedirect(
-        f'{settings.FRONTEND_URL}/recipes/{pk}/',
+        f'https://foodgram-app.duckdns.org/recipes/{pk}/',
         permanent=True
     )
