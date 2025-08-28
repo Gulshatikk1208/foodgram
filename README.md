@@ -54,6 +54,8 @@ cd foodgram/infra
     DB_PASSWORD=secretpassword
     DB_HOST=db
     DB_PORT=5432
+    DEBUG=False
+    ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
 3. Запустить проект:
@@ -63,14 +65,14 @@ docker compose up -d --build
 * Миграции и сбор статики выполняются автоматически внутри контейнера backend при старте — вручную их делать не нужно.
 
 ### После запуска проект будет доступен по адресу: http://localhost:8050
+
 ## Деплой на сервер
 
 Деплой выполняется автоматически через GitHub Actions при push в ветку main.
 
 ### Workflow:
 
-- Собирает образы backend и frontend.
-- Публикует их на Docker Hub.
+- Собирает образы backend и frontend и публикует их на Docker Hub.
 - По SSH заходит на сервер в каталог /home/user/foodgram и выполняет:
 ```
 docker compose pull
@@ -80,15 +82,17 @@ docker compose up -d
 
 * Требования к серверу:
   - установлены Docker и docker compose
-  - репозиторий клонирован в /home/user/foodgram
-  - в корне создан файл .env с переменными окружения:
+  - в файле конфигурации веб-сервера Nginx добавлена маршрутизация для обработки запросов по доменному имени (foodgram-app.duckdns.org)
+  - в директорию /home/user/foodgram клонирован docker-compose.yml и создан файл .env с переменными окружения:
   ```
   DB_ENGINE
   DB_NAME
   DB_USER
   DB_PASSWORD
   DB_HOST
-  DB_PORT и др.
+  DB_PORT
+  DEBUG=False
+  ALLOWED_HOSTS=localhost,127.0.0.1,foodgram-app.duckdns.org
   ```
 
 В Secrets репозитория необходимо указать:
@@ -102,6 +106,6 @@ docker compose up -d
 - TELEGRAM_TO
 - TELEGRAM_TOKEN
 
-### После успешного деплоя проект будет доступен по адресу: https://foodgram-app.duckdns.org/recipes
+### После успешного деплоя проект будет доступен по адресу: https://foodgram-app.duckdns.org/
 
 Автор проекта: Студент Яндекс.Практикум курса "Python-разработчик" Гульшат Гайфуллина (https://github.com/Gulshatikk1208)
