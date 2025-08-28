@@ -10,6 +10,7 @@ from rest_framework.permissions import (SAFE_METHODS, AllowAny,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from foodgram_backend import settings
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
                             RecipeIngredient, Tag)
 from users.models import Follow
@@ -287,4 +288,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
-    return HttpResponseRedirect(f'/recipes/{pk}', permanent=True)
+    return HttpResponseRedirect(
+        f'{settings.FRONTEND_URL}/recipes/{pk}',
+        permanent=True
+    )
