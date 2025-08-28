@@ -276,7 +276,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return content
 
     @action(methods=['get'], detail=True, url_path='get-link')
-    def get_link(self, request):
+    def get_link(self, request, pk=None):
         """Возвращает короткую ссылку на рецепт."""
         recipe = self.get_object()
         return Response(
