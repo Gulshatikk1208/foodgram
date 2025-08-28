@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (SAFE_METHODS, AllowAny,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
@@ -48,15 +50,26 @@ class MyUserViewSet(PartialUpdateModelMixin,
 
     def get_queryset(self):
         """Возвращает разный queryset в зависимости от действия."""
-        if self.action == 'subscriptions':
-            return User.objects.filter(following__user=self.request.user)
-        return User.objects.all()
+        return (
+            User.objects.filter(following__user=self.request.user)
+            if self.action == 'subscriptions'
+            else User.objects.all()
+        )
 
     def get_serializer_class(self):
         """Выбирает сериализатор в зависимости от действия."""
-        if self.action == 'subscriptions':
-            return serializers.SubscriptionSerializer
-        return serializers.UserSerializer
+        return (
+            serializers.SubscriptionSerializer
+            if self.action == 'subscriptions'
+            else serializers.UserSerializer
+        )
+
+    def get_permissions(self):
+        """Разрешает создание пользователя без аутентификации."""
+        return (
+            [AllowAny()] if self.action == 'create'
+            else super().get_permissions()
+        )
 
     @action(methods=['get'], detail=False)
     def me(self, request, *args, **kwargs):
@@ -111,7 +124,7 @@ class MyUserViewSet(PartialUpdateModelMixin,
 
     @action(methods=['post'], detail=True)
     def subscribe(self, request, *args, **kwargs):
-        """Управляет подпиской на пользователя."""
+        """Подписка на пользователя."""
         followed_user = get_object_or_404(User, id=self.kwargs.get('pk'))
         serializer = serializers.FollowSerializer(
             data={
@@ -159,8 +172,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = serializers.RecipeSerializer
     pagination_class = CustomPagePagination
-    permission_classes = [IsAuthenticatedOrReadOnly,
-                          permissions.IsAuthorOrReadOnlyPermission]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = filters.RecipeFilter
 
@@ -175,9 +187,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             else serializers.CreateRecipeSerializer)
 
     def get_permissions(self):
-        if self.action in self.action_map:
-            return [IsAuthenticatedOrReadOnly]
-        return super().get_permissions()
+        """Выбирает разрешение в зависимотси от действия."""
+        return (
+            [permissions.IsAuthorOrReadOnlyPermission()]
+            if self.action in ['update', 'partial_update', 'destroy']
+            else super().get_permissions()
+        )
 
     @action(methods=['post'], detail=True)
     def favorite(self, request, *args, **kwargs):
@@ -268,3 +283,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             {'short-link': recipe.short_link},
             status=status.HTTP_200_OK
         )
+
+
+def redirect_short_link(request, pk):
+    """Редирект на полную ссылку рецепта."""
+    recipe_url = reverse('recipes-detail', kwargs={'pk': pk})
+    return redirect(request.build_absolute_uri(recipe_url), permanent=True)
