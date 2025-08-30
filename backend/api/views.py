@@ -291,7 +291,8 @@ def redirect_to_recipe(request, pk):
     import logging
 
     logging.basicConfig(level=logging.DEBUG)
-    print(f"DEBUG REDIRECT: Redirect to {settings.FRONTEND_URL}/recipes/{pk}/")
+    logging.debug(f'DEBUG REDIRECT:'
+                  f'Redirect to {settings.FRONTEND_URL}/recipes/{pk}/')
     return HttpResponseRedirect(
         f'{settings.FRONTEND_URL}/recipes/{pk}/',
         permanent=True
