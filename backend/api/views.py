@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
@@ -19,6 +21,9 @@ from . import filters, permissions, serializers
 from .pagination import CustomPagePagination
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class PartialUpdateModelMixin(UpdateModelMixin):
@@ -288,7 +293,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
-    print(f"DEBUG REDIRECT: Redirect to {settings.FRONTEND_URL}/recipes/{pk}/")
+    logger.info(f'Redirect called for recipe {pk},'
+                f'FRONTEND_URL: {settings.FRONTEND_URL}')
+    print(f"DEBUG: Redirect to {settings.FRONTEND_URL}/recipes/{pk}/")
     return HttpResponseRedirect(
         f'{settings.FRONTEND_URL}/recipes/{pk}/',
         permanent=True
