@@ -288,6 +288,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 def redirect_to_recipe(request, pk):
     """Редирект на полную ссылку рецепта."""
+    import logging
+
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug('Проверка редиректа')
     return HttpResponseRedirect(
         f'{settings.FRONTEND_URL}/recipes/{pk}/',
         permanent=True
