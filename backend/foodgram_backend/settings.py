@@ -14,8 +14,6 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost')
-
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split()
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -125,15 +123,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 DJOSER = {
-    'SERIALIZERS': {
-        'user': 'api.serializers.UserSerializer',
-        'user_create': 'api.serializers.UserCreateSerializer',
-        'current_user': 'api.serializers.UserSerializer',
-    },
-    'PERMISSIONS': {
-        'user': ['rest_framework.permissions.IsAuthenticated'],
-        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-    },
     'HIDE_USERS': False,
     'LOGIN_FIELD': 'email',
 }

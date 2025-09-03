@@ -1,28 +1,25 @@
-import base64
-
+# isort: skip_file
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
-from djoser.serializers import UserCreateSerializer as UserCreate
-from djoser.serializers import UserSerializer as UserDetail
+from django.contrib.auth.password_validation import validate_password
+from djoser.serializers import (
+    UserCreateSerializer as DjoserUserCreateSerializer
+)
+from djoser.serializers import UserSerializer as DjoserUserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from foodgram_backend import constants
-from recipes.models import (Cart, Favorite, Ingredient, Recipe,
-                            RecipeIngredient, Tag)
+from recipes.models import (
+    Cart,
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    Tag
+)
 from users.models import Follow
 
 User = get_user_model()
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        return super().to_internal_value(data)
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -35,10 +32,38 @@ class AvatarSerializer(serializers.ModelSerializer):
         fields = ('avatar',)
 
 
-class UserCreateSerializer(UserCreate):
+class SetPasswordSerializer(serializers.Serializer):
+    """Сериализатор пароля."""
+
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_current_password(self, value):
+        """Проверяет текущий пароль."""
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(
+                {'error': 'Неверный текущий пароль'})
+        return value
+
+    def validate_new_password(self, value):
+        """Проверяет новый пароль."""
+        validate_password(value, self.context['request'].user)
+        return value
+
+    def validate(self, attrs):
+        """Проверяет, что пароли не совпадают."""
+        if attrs['current_password'] == attrs['new_password']:
+            raise serializers.ValidationError({
+                'error': 'Новый пароль не должен совпадать со старым'
+            })
+        return attrs
+
+
+class UserCreateSerializer(DjoserUserCreateSerializer):
     """Сериализатор создания пользователя."""
 
-    class Meta(UserCreate.Meta):
+    class Meta(DjoserUserCreateSerializer.Meta):
         model = User
         fields = (
             'email',
@@ -49,11 +74,10 @@ class UserCreateSerializer(UserCreate):
         )
 
 
-class UserSerializer(UserDetail):
+class UserSerializer(DjoserUserSerializer):
     """Сериализатор пользователя."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    avatar = serializers.ImageField(required=False)
 
     class Meta:
         model = User
@@ -108,9 +132,11 @@ class SubscriptionSerializer(UserSerializer):
         request = self.context['request']
         recipes_limit = constants.RECIPES_LIMIT
         try:
-            recipes_limit_param = request.query_params.get('recipes_limit')
-            if recipes_limit_param:
-                limit = int(recipes_limit_param)
+            limit_value = request.query_params.get(
+                constants.RECIPES_LIMIT_PARAM
+            )
+            if limit_value:
+                limit = int(limit_value)
                 if limit > 0:
                     recipes_limit = limit
         except (ValueError, TypeError):
@@ -173,7 +199,11 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для отображения ингредиентов в рецепте."""
 
     id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
+    name = serializers.SlugRelatedField(
+        source='ingredient',
+        slug_field='name',
+        read_only=True
+    )
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
@@ -256,7 +286,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-    def add_ingredients(self, ingredients, model):
+    def _add_ingredients(self, ingredients, model):
         """Добавляет ингредиенты к рецепту."""
         RecipeIngredient.objects.bulk_create(
             RecipeIngredient(
@@ -272,7 +302,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = super().create(validated_data)
-        self.add_ingredients(ingredients, recipe)
+        self._add_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
         return recipe
 
@@ -281,13 +311,13 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
 
-        RecipeIngredient.objects.filter(recipe=instance).delete()
+        instance.ingredients.clear()
         instance.tags.clear()
 
-        super().update(instance, validated_data)
-        self.add_ingredients(ingredients, instance)
+        self._add_ingredients(ingredients, instance)
         instance.tags.set(tags)
-        return instance
+
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         """Возвращает рецепт после создания."""
