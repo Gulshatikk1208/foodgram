@@ -148,7 +148,7 @@ LOGGING = {
     },
     'loggers': {
         'recipes.views': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
