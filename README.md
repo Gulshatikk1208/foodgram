@@ -23,6 +23,19 @@ cd foodgram/infra
     DB_PORT=5432
 ```
 
+3. Собрать образы и запушить их на DockerHub:
+```
+cd backend
+docker build -t username/foodgram_backend .
+docker push username/foodgram_backend
+```
+
+```
+cd frontend
+docker build -t username/foodgram_frontend .
+docker push username/foodgram_frontend
+```
+
 3. Запустить проект:
 ```
 docker compose up -d --build
