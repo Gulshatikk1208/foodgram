@@ -8,7 +8,7 @@ def redirect_to_recipe(request, short_code):
     try:
         recipe = Recipe.objects.get(short_link=short_code)
         return HttpResponsePermanentRedirect(
-            request.build_absolute_uri(f'/recipes/{recipe.id}')
+            request.build_absolute_uri(f'/{recipe.id}')
         )
     except Recipe.DoesNotExist:
         return HttpResponseRedirect(request.build_absolute_uri('/not-found'))
