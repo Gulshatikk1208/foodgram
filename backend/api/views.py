@@ -265,7 +265,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if not recipe.short_link:
             recipe.short_link = utils.generate_unique_short_code()
             recipe.save(update_fields=['short_link'])
-        short_url = request.build_absolute_uri(f'/s/{recipe.short_link}/')
+        short_url = f'https://foodgram-app.duckdns.org/s/{recipe.short_link}/'
         return Response(
             {'short-link': short_url},
             status=status.HTTP_200_OK
