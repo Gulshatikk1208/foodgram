@@ -7,7 +7,7 @@ from .models import Cart, Favorite, Ingredient, Recipe, RecipeIngredient, Tag
 
 class IngredientInline(admin.StackedInline):
     model = RecipeIngredient
-    extra = constants.EXTRA_INGREDIENT_FORM
+    extra = 0
     min_num = constants.MIN_INGREDIENTS_PER_RECIPE
     validate_min = True
 
