@@ -36,6 +36,10 @@ class User(AbstractUser):
                 'error': ('Выберите другое имя для пользователя.')
             })
 
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -64,6 +68,23 @@ class Follow(models.Model):
             ),
         ]
         ordering = ('id',)
+
+    def clean(self):
+        super().clean()
+        if self.user == self.following:
+            raise ValidationError('Нельзя подписаться на себя.')
+
+        if Follow.objects.filter(
+            user=self.user,
+            following=self.following
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError('Подписка уже оформлена.')
+
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.user} {self.following}'

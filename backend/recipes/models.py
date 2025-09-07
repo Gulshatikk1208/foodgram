@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -117,8 +118,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        verbose_name = 'ингредиент рецепта'
-        verbose_name_plural = 'Ингредиенты рецептов'
+        verbose_name = 'ингредиент для рецепта'
+        verbose_name_plural = 'Ингредиенты для рецепта'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
@@ -157,6 +158,19 @@ class FavoriteCartBase(models.Model):
                 name='%(class)s_unique_user_recipe'
             )
         ]
+
+    def clean(self):
+        """Валидация при сохранении."""
+        super().clean()
+        if self.__class__.objects.filter(
+            user=self.user,
+            recipe=self.recipe
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError('Рецепт уже добавлен.')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.user.username} - {self.recipe.name}'
