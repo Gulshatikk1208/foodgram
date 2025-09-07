@@ -74,17 +74,9 @@ class Follow(models.Model):
         if self.user == self.following:
             raise ValidationError('Нельзя подписаться на себя.')
 
-        if Follow.objects.filter(
-            user=self.user,
-            following=self.following
-        ).exclude(pk=self.pk).exists():
-            raise ValidationError('Подписка уже оформлена.')
-
-        super().clean()
-
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.user} {self.following}'
+        return f'{self.user} подписан на {self.following}'
