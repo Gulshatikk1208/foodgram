@@ -1,4 +1,5 @@
 from django.db.models import prefetch_related_objects
+
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.response import Response
 
