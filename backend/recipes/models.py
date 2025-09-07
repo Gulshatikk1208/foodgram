@@ -160,7 +160,6 @@ class FavoriteCartBase(models.Model):
         ]
 
     def clean(self):
-        """Валидация при сохранении."""
         super().clean()
         if self.__class__.objects.filter(
             user=self.user,
@@ -173,7 +172,7 @@ class FavoriteCartBase(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.user.username} - {self.recipe.name}'
+        return f'{self.user.username} добавил {self.recipe.name}'
 
 
 class Favorite(FavoriteCartBase):
