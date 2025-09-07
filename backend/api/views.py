@@ -1,21 +1,18 @@
-# isort: skip_file
-import secrets
-import string
-
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (
+
+from rest_framework.permissions import (  # isort:skip
     SAFE_METHODS, AllowAny, IsAuthenticatedOrReadOnly
 )
-from rest_framework.response import Response
+from rest_framework.response import Response  # isort:skip
 
-from foodgram_backend import constants
-from recipes.models import (
+from recipes.models import (  # isort:skip
     Cart,
     Favorite,
     Ingredient,
@@ -23,11 +20,12 @@ from recipes.models import (
     RecipeIngredient,
     Tag
 )
-from users.models import Follow
+from users.models import Follow  # isort:skip
 
-from . import filters, permissions, serializers
-from .mixins import PatchModelMixin
-from .pagination import CustomPagePagination
+from . import filters, permissions, serializers, utils  # isort:skip
+from .mixins import PatchModelMixin  # isort:skip
+from .pagination import CustomPagePagination  # isort:skip
+
 
 User = get_user_model()
 
@@ -57,7 +55,7 @@ class UserViewSet(
         """Выбирает сериализатор в зависимости от действия."""
         if self.action == 'subscriptions':
             return serializers.SubscriptionSerializer
-        elif self.action == 'create':
+        if self.action == 'create':
             return serializers.UserCreateSerializer
         return serializers.UserSerializer
 
@@ -194,7 +192,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             else super().get_permissions()
         )
 
-    def _add_to_favorite_and_cart(self, request, serializer_class):
+    def _add_to_favorite_or_cart(self, request, serializer_class):
         """Метод для добавления в избранное и список покупок. """
         recipe = self.get_object()
         serializer = serializer_class(
@@ -205,7 +203,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def _remove_from_favorite_and_cart(self, request, model):
+    def _remove_from_favorite_or_cart(self, request, model):
         recipe = self.get_object()
         model_object = get_object_or_404(
             model,
@@ -218,26 +216,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def favorite(self, request, *args, **kwargs):
         """Добавление в избранное."""
-        return self._add_to_favorite_and_cart(
+        return self._add_to_favorite_or_cart(
             request, serializers.FavoriteSerializer
         )
 
     @favorite.mapping.delete
     def remove_from_favorite(self, request, *args, **kwargs):
         """Удаление из избранного."""
-        return self._remove_from_favorite_and_cart(request, Favorite)
+        return self._remove_from_favorite_or_cart(request, Favorite)
 
     @action(methods=['post'], detail=True)
     def shopping_cart(self, request, *args, **kwargs):
         """Добавление в список покупок."""
-        return self._add_to_favorite_and_cart(
+        return self._add_to_favorite_or_cart(
             request, serializers.CartSerializer
         )
 
     @shopping_cart.mapping.delete
     def remove_from_shopping_cart(self, request, *args, **kwargs):
         """Удаление из списка покупок."""
-        return self._remove_from_favorite_and_cart(request, Cart)
+        return self._remove_from_favorite_or_cart(request, Cart)
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):
@@ -249,7 +247,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__measurement_unit',
         ).annotate(amount=Sum('amount')).order_by('-amount')
 
-        content = self._generate_shopping_list_content(ingredients)
+        content = utils.generate_shopping_list_content(ingredients)
 
         response = HttpResponse(
             content,
@@ -260,38 +258,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return response
 
-    def _generate_shopping_list_content(self, ingredients):
-        """Формирует содержимое списка покупок."""
-        if not ingredients:
-            return 'Список покупок пуст'
-
-        content = "Список покупок:\n\n" + '\n'.join(
-            f'{i+1}. {ing["ingredient__name"]} - '
-            f'{ing["amount"]} {ing["ingredient__measurement_unit"]}'
-            for i, ing in enumerate(ingredients)
-        )
-        return content
-
     @action(methods=['get'], detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         """Возвращает короткую ссылку на рецепт."""
         recipe = self.get_object()
         if not recipe.short_link:
-            recipe.short_link = self._generate_unique_short_code()
+            recipe.short_link = utils.generate_unique_short_code()
             recipe.save(update_fields=['short_link'])
-        short_url = request.build_absolute_uri(f'/s/{recipe.short_link}')
+        short_url = request.build_absolute_uri(f'/s/{recipe.short_link}/')
         return Response(
             {'short-link': short_url},
             status=status.HTTP_200_OK
         )
-
-    def _generate_unique_short_code(
-        self,
-        length=constants.SHORT_LINK_MAX_LENGTH
-    ):
-        """Генерирует уникальный короткий код для рецепта."""
-        alphabet = string.ascii_letters + string.digits
-        while True:
-            code = ''.join(secrets.choice(alphabet) for _ in range(length))
-            if not Recipe.objects.filter(short_link=code).exists():
-                return code
