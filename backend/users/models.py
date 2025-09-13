@@ -32,13 +32,7 @@ class User(AbstractUser):
     def clean(self):
         super().clean()
         if self.username.lower() == 'me':
-            raise ValidationError({
-                'error': ('Выберите другое имя для пользователя.')
-            })
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
+            raise ValidationError('Выберите другое имя для пользователя.')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -70,7 +64,6 @@ class Follow(models.Model):
         ordering = ('id',)
 
     def clean(self):
-        super().clean()
         if self.user == self.following:
             raise ValidationError('Нельзя подписаться на себя.')
 
