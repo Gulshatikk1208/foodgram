@@ -1,20 +1,23 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
-from djoser.serializers import (  # isort:skip
+from djoser.serializers import (
     UserCreateSerializer as DjoserUserCreateSerializer
 )
-from djoser.serializers import (  # isort:skip
-    UserSerializer as DjoserUserSerializer
-)
-from drf_extra_fields.fields import Base64ImageField  # isort:skip
-from rest_framework import serializers  # isort:skip
+from djoser.serializers import UserSerializer as DjoserUserSerializer
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 
-from foodgram_backend import constants  # isort:skip
-from recipes.models import (  # isort:skip
-    Cart, Favorite, Ingredient, Recipe, RecipeIngredient, Tag
+from foodgram_backend import constants
+from recipes.models import (
+    Cart,
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    Tag
 )
-from users.models import Follow  # isort:skip
+from users.models import Follow
 
 User = get_user_model()
 

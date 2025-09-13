@@ -6,13 +6,12 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-
-from rest_framework.permissions import (  # isort:skip
+from rest_framework.permissions import (
     SAFE_METHODS, AllowAny, IsAuthenticatedOrReadOnly
 )
-from rest_framework.response import Response  # isort:skip
+from rest_framework.response import Response
 
-from recipes.models import (  # isort:skip
+from recipes.models import (
     Cart,
     Favorite,
     Ingredient,
@@ -20,12 +19,11 @@ from recipes.models import (  # isort:skip
     RecipeIngredient,
     Tag
 )
-from users.models import Follow  # isort:skip
+from users.models import Follow
 
-from . import filters, permissions, serializers, utils  # isort:skip
-from .mixins import PatchModelMixin  # isort:skip
-from .pagination import CustomPagePagination  # isort:skip
-
+from . import filters, permissions, serializers, utils
+from .mixins import PatchModelMixin
+from .pagination import CustomPagePagination
 
 User = get_user_model()
 
