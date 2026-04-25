@@ -89,7 +89,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/${{ secrets.SSH_USER }}/foodgram
+            cd /${{ secrets.SSH_USER }}/foodgram
             sudo docker compose pull
             sudo docker compose down
             sudo docker compose up -d
